@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jscanify Demo</title>
+  <link rel="stylesheet" href="./style.css">
+  <!-- OpenCV -->
+  <script src="https://docs.opencv.org/4.x/opencv.js" type="text/javascript"></script>
+  <script src="jscanify.js" type="text/javascript"></script>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+  <!-- Cropper.js -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      max-height: 80vh; /* Adjust this to leave space for buttons */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Ensure image does not overflow */
+    }
+
+    canvas, img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      object-fit: contain; /* Ensure the image fits within the container */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div>
+      <h1 class="text-center">Image Processing</h1>
+    </div>
+    <br>
+    <div class="container-fluid">
+      <div class="text-center">
+        <label class="btn btn-sm btn-primary">
+          Choose Image
+          <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;">
+        </label>
+        <button id="manualCropButton" class="btn btn-sm btn-primary">Manual Crop</button>
+        <button id="cutPaperButton" class="btn btn-sm btn-primary">Crop Selected Image</button>
+        <button id="highlightButton" class="btn btn-sm btn-primary">Auto Crop Confirmation</button>
+        <button id="extractButton" class="btn btn-sm btn-primary">Auto Crop</button>
+      </div>
+    </div>
+    <br>
+    <div class="canvas-container">
+      <canvas id="canvas" style="display:none;"></canvas>
+      <img id="image" style="display:none;">
+    </div>
+  </div>
+  <script>
+    let selectedImage = null;
+    let cropper = null;
+
+    let manualCropBtn = document.getElementById('manualCropButton');
+    manualCropBtn.style.display = 'none';
+    let cropSelectedImageBtn = document.getElementById('cutPaperButton');
+    cropSelectedImageBtn.style.display = 'none';
+    let autoCropConfirmBtn = document.getElementById('highlightButton');
+    autoCropConfirmBtn.style.display = 'none';
+    let autoCropBtn = document.getElementById('extractButton');
+    autoCropBtn.style.display = 'none';
+
+    document.getElementById('imageInput').addEventListener('change', displayImage);
+    document.getElementById('manualCropButton').addEventListener('click', manualCrop);
+    document.getElementById('cutPaperButton').addEventListener('click', cutPaper);
+    document.getElementById('highlightButton').addEventListener('click', highlightPaper);
+    document.getElementById('extractButton').addEventListener('click', extractPaper);
+
+    function displayImage(event) {
+      manualCropBtn.style.display = 'inline-block';
+      cropSelectedImageBtn.style.display = 'inline-block';
+      autoCropConfirmBtn.style.display = 'inline-block';
+      autoCropBtn.style.display = 'inline-block';
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById('image');
+          img.onload = function () {
+            img.style.display = 'block';
+            document.getElementById('canvas').style.display = 'none'; // Hide the canvas initially
+            selectedImage = img;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function manualCrop() {
+      autoCropConfirmBtn.style.display = 'none';
+      autoCropBtn.style.display = 'none';
+      const img = document.getElementById('image');
+      if (selectedImage) {
+        const jscan = new jscanify();
+        const cvImage = cv.imread(selectedImage);
+        const maxContour = jscan.findPaperContour(cvImage);
+        const {
+          topLeftCorner,
+          topRightCorner,
+          bottomLeftCorner,
+          bottomRightCorner,
+        } = jscan.getCornerPoints(maxContour);
+
+        console.log('Top Left Corner:', topLeftCorner);
+        console.log('Top Right Corner:', topRightCorner);
+        console.log('Bottom Left Corner:', bottomLeftCorner);
+        console.log('Bottom Right Corner:', bottomRightCorner);
+
+        const cropperOptions = {
+          viewMode: 1,
+          aspectRatio: NaN,
+          autoCropArea: 0.5,
+          responsive: true,
+          scalable: true,
+          data: {
+            x: topLeftCorner.x,
+            y: topLeftCorner.y,
+            width: topRightCorner.x - topLeftCorner.x,
+            height: bottomLeftCorner.y - topLeftCorner.y,
+          },
+        };
+
+        console.log('cropperOptions',cropperOptions);
+
+        if (cropper) {
+          cropper.destroy();
+        }
+        cropper = new Cropper(img, cropperOptions);
+      } else {
+        alert("Please select an image first.");
+      }
+    }
+
+    function cutPaper() {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas();
+        resizeCanvas(canvas);
+        document.getElementById('canvas').replaceWith(canvas);
+        canvas.id = 'canvas';
+        document.getElementById('canvas').style.display = 'block';
+        document.getElementById('image').style.display = 'none'; // Hide the image after cropping
+        selectedImage = canvas;
+        cropper.destroy();
+        cropper = null;
+      } else {
+        alert("Please crop the image first.");
+      }
+    }
+
+    function highlightPaper() {
+      manualCropBtn.style.display = 'none';
+      cropSelectedImageBtn.style.display = 'none';
+      if (selectedImage) {
+        const jscan = new jscanify();
+        const canvas = jscan.highlightPaper(selectedImage);
+        resizeCanvas(canvas);
+        document.getElementById('canvas').replaceWith(canvas);
+        canvas.id = 'canvas';
+        document.getElementById('canvas').style.display = 'block';
+        document.getElementById('image').style.display = 'none'; // Hide the image after processing
+      } else {
+        alert("Please select an image first.");
+      }
+    }
+
+    function extractPaper() {
+      if (selectedImage) {
+        const jscan = new jscanify();
+        const canvas = jscan.extractPaper(selectedImage);
+        resizeCanvas(canvas);
+        document.getElementById('canvas').replaceWith(canvas);
+        canvas.id = 'canvas';
+        document.getElementById('canvas').style.display = 'block';
+        document.getElementById('image').style.display = 'none'; // Hide the image after processing
+      } else {
+        alert("Please select an image first.");
+      }
+    }
+
+    function resizeCanvas(canvas) {
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+    }
+  </script>
+</body>
+</html>
