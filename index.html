@@ -35,9 +35,15 @@
       </nav>
     </div>
       <div class="mt-5">&nbsp;</div>
+
+
+
+
+
       <div class="mt-5"> 
+        <!-- 1st Page -->
         <div class="mt-2" id="user-disclaimer">
-          <p class="text-center" id="captureInstructions" >
+          <p class="text-center" >
             Please place your camera precisely at the top of the document and capture clearly for better data extraction
           </p>
           <p class="text-center" >
@@ -45,6 +51,11 @@
           </p>
           <p class="text-center" >
             Reference No .  <strong>A-A731037131</strong>
+          </p>
+        </div>
+        <div class="mt-2" id="add-images-disclaimer">
+          <p class="text-center" >
+            Please click on capture button to add more images
           </p>
         </div>
         <div class="d-flex justify-content-center align-items-center p-0 m-0">
@@ -64,7 +75,7 @@
       <div class="thumbnails" id="thumbnails"></div>
       <div class="container-fluid mt-3 mb-5" id="captureFileSubmitButton">
         <div class="text-center">
-          <button class="btn btn-sm bg-main-theme" onclick="">
+          <button class="btn btn-sm bg-main-theme">
             <i class="fa fa-upload" aria-hidden="true"></i>
           </button>
         </div>
@@ -76,31 +87,38 @@
           <img id="image" style="display:none;">
         </div>
         <br>
-        <div id="fileCaptureDiv" class="container">
+        <div class="container">
           <div class="container-fluid text-center">
-            <button id="cutPaperButton" class="btn btn-sm btn-success">
+            <button id="confirmCropButton" class="btn btn-lg btn-success m-5">
               <i class="fa fa-check"></i>
             </button>
-            <button id="clearImage" class="btn btn-sm btn-secondary">
+            <button id="rejectImage" class="btn btn-lg btn-secondary m-5">
               <i class="fa fa-times"></i>
             </button>
-            <button id="previewImages" class="btn btn-sm btn-secondary">
-              <i class="fa fa-eye" aria-hidden="true"></i>
+            <button id="submitImages" class="btn btn bg-main-theme">
+              Next
             </button>
           </div>
         </div>
-        <div class="container-fluid mt-3 mb-5">
+        <div class="container-fluid mt-3 mb-5" style="display:none">
           <div class="text-center">
-            <button id="addImage" class="btn btn-sm btn-success">
+            <button id="addImageToGallery" class="btn btn-sm btn-success">
               <i class="fa fa-plus"></i>
             </button>
-            <button id="rejectImage" class="btn btn-sm btn-secondary">
-              <i class="fa fa-times"></i>
-            </button>
           </div>
         </div>
-      </div>
+
+        <div id="uploadFileToAPI" ></div>
+        <div id="uploadFileToAPIStatus" ></div>
+
       <div class="mt-5 mb-5">&nbsp;</div>
+
+
+
+
+
+
+
       <nav id="fixed-footer" class="navbar fixed-bottom navbar-light bg-main-theme text-center justify-content-center p-1">
           <p class="text-center m-0 p-0" >Bima Yangu © 2023 Association of Kenya Insurers (AKI) Version : 2.0.0 - Primary</p>
       </nav>
