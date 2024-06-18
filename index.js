@@ -222,13 +222,14 @@ function deleteImage(index) {
 
 
 function uploadFileAPI(){
-  if(uploadedFileData){
-    urlParams = `statusCode=${encodeURIComponent(uploadStatusCode)}&status=${encodeURIComponent(uploadStatus)}`
-    window.location.href = `./statusComponent/statusComponent.html?${urlParams}`;
-  }else{
-    urlParams = `statusCode=${encodeURIComponent(uploadStatusCode)}&status=${encodeURIComponent(uploadStatus)}`
-    window.location.href = `./statusComponent/statusComponent.html?${urlParams}`;
-  }
+  submitFilesFn();
+  // if(uploadedFileData){
+  //   urlParams = `statusCode=${encodeURIComponent(uploadStatusCode)}&status=${encodeURIComponent(uploadStatus)}`
+  //   window.location.href = `./statusComponent/statusComponent.html?${urlParams}`;
+  // }else{
+  //   urlParams = `statusCode=${encodeURIComponent(uploadStatusCode)}&status=${encodeURIComponent(uploadStatus)}`
+  //   window.location.href = `./statusComponent/statusComponent.html?${urlParams}`;
+  // }
 }
 
 function uploadCaptureAPI(){
@@ -257,6 +258,24 @@ function submitImagesFn(){
   const uploadFileToAPIStatus = document.getElementById('uploadFileToAPIStatus');
   uploadFileToAPIStatus.innerHTML = `
     <p class="m-0 p-0" > Uploading ${0} / ${images.length} images</p>
+  `
+}
+
+function submitFilesFn(){
+  addImageDisclaimer.style.display = 'none';
+  captureFileButton.style.display = 'none';
+  submitImagesBtn.style.display = 'none';
+  userDisclaimer.style.display = 'none';
+  fileStatusTag.style.display = 'none';
+  console.log('image collection : ', images);
+  document.getElementById('thumbnails').style.display = 'none';
+  const uploadFileToAPI = document.getElementById('uploadFileToAPI');
+  uploadFileToAPI.innerHTML = `
+    <img src="./assets/pictures/fileUploadGif.gif" alt="loader Gif" />
+  `
+  const uploadFileToAPIStatus = document.getElementById('uploadFileToAPIStatus');
+  uploadFileToAPIStatus.innerHTML = `
+    <p class="m-0 p-0" > Uploading your PDF</p>
   `
 }
 
