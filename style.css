@@ -84,3 +84,14 @@ img,.cropper-container {
 .flex-dir-col{
     flex-direction: column
 }
+
+.aTag{
+    color: #1a0dab;
+}
+
+.bigButton{
+    width: 175px;
+    display: inline-block;
+}
+
+
